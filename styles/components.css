@@ -123,16 +123,16 @@
   transform: translate(-50%, calc(-50% - 8px)) !important;
   border-color: var(--yellow-core) !important;
   box-shadow: 0 35px 80px rgba(0, 0, 0, 0.6), inset 0 0 16px rgba(242, 200, 75, 0.15) !important;
-  animation: none !important;
+  animation-play-state: paused !important;
 }
 .infra-node.style-opt-3:hover::after {
   opacity: 1 !important;
-  animation: none !important;
+  animation-play-state: paused !important;
 }
 .infra-node.style-opt-3:hover .status-light {
   background: var(--yellow-core) !important;
   box-shadow: 0 0 8px var(--yellow-core), 0 0 16px var(--yellow-core) !important;
-  animation: none !important;
+  animation-play-state: paused !important;
 }
 
 /* Status light dot inside node cards */
