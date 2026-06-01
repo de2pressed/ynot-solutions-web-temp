@@ -32,7 +32,6 @@ export function Header() {
   return (
     <header className={`site-header theme-${theme}`} data-testid="site-header">
       <Link className="brand" href="/" aria-label="YNot Solutions home" onClick={() => setOpen(false)}>
-        <span className="brand-mark">YN</span>
         <span>YNot Solutions</span>
       </Link>
       <nav className={`nav ${open ? "open" : ""}`} aria-label="Main navigation">

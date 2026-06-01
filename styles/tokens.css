@@ -1,5 +1,7 @@
 :root {
-  --yellow-core: #f2c84b;
+  --yellow-core-rgb: 242, 200, 75;
+  --theme-yellow-rgb: var(--yellow-core-rgb);
+  --yellow-core: rgb(var(--theme-yellow-rgb));
   --yellow-soft: #f7da72;
   --yellow-deep: #c9971a;
   --black: #050505;

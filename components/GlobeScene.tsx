@@ -147,16 +147,6 @@ function DataArc({ route, index }: { route: [number, number, number, number]; in
   );
 }
 
-/* ── Atmosphere glow ────────────────────────────────────────── */
-function AtmosphereGlow() {
-  return (
-    <mesh>
-      <sphereGeometry args={[GLOBE_RADIUS + 0.05, 64, 64]} />
-      <meshBasicMaterial color={GOLD} transparent opacity={0.04} side={THREE.BackSide} />
-    </mesh>
-  );
-}
-
 /* ── City endpoint dots ─────────────────────────────────────── */
 function CityDots() {
   const positions = useMemo(() => {
@@ -194,9 +184,18 @@ function GlobeInner() {
   return (
     <group ref={globeRef}>
       <mesh>
-        <sphereGeometry args={[GLOBE_RADIUS, 64, 64]} />
+        <sphereGeometry args={[GLOBE_RADIUS, 128, 128]} />
         <meshStandardMaterial
           map={earthTex}
+          onUpdate={(self) => {
+            if (self.map) {
+              self.map.minFilter = THREE.LinearMipmapLinearFilter;
+              self.map.magFilter = THREE.LinearFilter;
+              self.map.generateMipmaps = true;
+              self.map.anisotropy = 16;
+              self.map.needsUpdate = true;
+            }
+          }}
           emissiveMap={earthTex}
           emissive={new THREE.Color("#f2c84b")}
           emissiveIntensity={2.2}
@@ -205,7 +204,6 @@ function GlobeInner() {
         />
       </mesh>
 
-      <AtmosphereGlow />
       <CityDots />
 
       {ROUTES.map((route, i) => (
