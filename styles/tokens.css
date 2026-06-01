@@ -1,13 +1,13 @@
 :root {
   --yellow-core-rgb: 242, 200, 75;
-  --theme-yellow-rgb: var(--yellow-core-rgb);
-  --theme-accent-rgb: var(--theme-yellow-rgb);
+  --theme-yellow-rgb: 247, 243, 232; /* white theme default */
+  --theme-accent-rgb: 242, 200, 75;
   --yellow-core: rgb(var(--theme-accent-rgb));
   --yellow-soft: #f7da72;
   --yellow-deep: #c9971a;
   --black: #050505;
   --black-soft: #0d0d0a;
-  --ink: #11100b;
+  --ink: #11100b;           /* white theme default */
   --white: #f7f3e8;
   --muted: #a8a090;
   --line-yellow: rgba(17, 16, 11, 0.2);
@@ -20,7 +20,9 @@
   --ease-weight: cubic-bezier(.19, 1, .22, 1);
   --grid-line-color: rgba(17, 16, 11, 0.09);
   --topo-line-color: rgba(17, 16, 11, 0.28);
+  --mac-terminal-border: rgba(17, 16, 11, 0.86);
   --btn-primary-bg: #050505;
-  --btn-primary-fg: #f2c84b;
+  --btn-primary-fg: #f7f3e8;  /* white theme: light text on dark button */
   --btn-primary-border: #050505;
+  --transition-color: #171206; /* seamless dark warm brown mid-band */
 }

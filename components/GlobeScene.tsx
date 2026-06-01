@@ -29,6 +29,7 @@ const ROUTES: [number, number, number, number][] = [
 const GLOBE_RADIUS = 2.0;
 const ARC_ALTITUDE = 0.32;
 
+
 /* ── NASA Earth texture URL (public domain, night-lights) ── */
 const EARTH_TEXTURE_URL = "https://unpkg.com/three-globe@2.41.12/example/img/earth-night.jpg";
 
@@ -45,7 +46,7 @@ function buildArcCurve(lat1: number, lon1: number, lat2: number, lon2: number) {
 const ROUTE_SPEEDS = [0.14, 0.11, 0.17, 0.13, 0.15, 0.12];
 
 /* ── Single animated arc with realistic data packets ────────── */
-function DataArc({ route, index, variant = "pulse", gold, goldDim }: { route: [number, number, number, number]; index: number; variant?: "pulse" | "laser" | "burst"; gold: THREE.Color; goldDim: THREE.Color }) {
+function DataArc({ route, index, variant = "pulse", mainColor, dimColor }: { route: [number, number, number, number]; index: number; variant?: "pulse" | "laser" | "burst"; mainColor: THREE.Color; dimColor: THREE.Color }) {
   const groupRef = useRef<THREE.Group>(null);
   /* Lead dot + glow halo */
   const dotRef  = useRef<THREE.Mesh>(null);
@@ -170,52 +171,52 @@ function DataArc({ route, index, variant = "pulse", gold, goldDim }: { route: [n
     <group ref={groupRef}>
       {/* Arc tube */}
       <mesh geometry={tubeGeo}>
-        <meshBasicMaterial color={goldDim} transparent opacity={0.35} />
+        <meshBasicMaterial color={dimColor} transparent opacity={0.35} />
       </mesh>
 
       {/* Packet 1 */}
       <mesh ref={dotRef}>
         <sphereGeometry args={[0.032, 14, 14]} />
-        <meshBasicMaterial color={gold} />
+        <meshBasicMaterial color={mainColor} />
       </mesh>
       <mesh ref={glowRef}>
         <sphereGeometry args={[0.07, 12, 12]} />
-        <meshBasicMaterial color={gold} transparent opacity={0.18} />
+        <meshBasicMaterial color={mainColor} transparent opacity={0.18} />
       </mesh>
 
       {/* Trail particles */}
       {Array.from({ length: 15 }).map((_, i) => (
         <mesh key={i} ref={(el) => { trailRefs.current[i] = el; }}>
           <sphereGeometry args={[0.022, 8, 8]} />
-          <meshBasicMaterial color={gold} transparent opacity={0.5} />
+          <meshBasicMaterial color={mainColor} transparent opacity={0.5} />
         </mesh>
       ))}
 
       {/* Packet 2 */}
       <mesh ref={dot2Ref}>
         <sphereGeometry args={[0.024, 12, 12]} />
-        <meshBasicMaterial color={gold} transparent opacity={0.8} />
+        <meshBasicMaterial color={mainColor} transparent opacity={0.8} />
       </mesh>
       <mesh ref={glow2Ref}>
         <sphereGeometry args={[0.05, 10, 10]} />
-        <meshBasicMaterial color={gold} transparent opacity={0.12} />
+        <meshBasicMaterial color={mainColor} transparent opacity={0.12} />
       </mesh>
 
       {/* Packet 3 */}
       <mesh ref={dot3Ref}>
         <sphereGeometry args={[0.024, 12, 12]} />
-        <meshBasicMaterial color={gold} transparent opacity={0.8} />
+        <meshBasicMaterial color={mainColor} transparent opacity={0.8} />
       </mesh>
       <mesh ref={glow3Ref}>
         <sphereGeometry args={[0.05, 10, 10]} />
-        <meshBasicMaterial color={gold} transparent opacity={0.12} />
+        <meshBasicMaterial color={mainColor} transparent opacity={0.12} />
       </mesh>
     </group>
   );
 }
 
 /* ── City endpoint dots ─────────────────────────────────────── */
-function CityDots({ gold }: { gold: THREE.Color }) {
+function CityDots({ mainColor }: { mainColor: THREE.Color }) {
   const positions = useMemo(() => {
     const cities: [number, number][] = [
       [40.7, -74], [51.5, -0.1], [35.7, 139.7], [-33.9, 151.2],
@@ -230,7 +231,7 @@ function CityDots({ gold }: { gold: THREE.Color }) {
       {positions.map((pos, i) => (
         <mesh key={i} position={pos}>
           <sphereGeometry args={[0.016, 8, 8]} />
-          <meshBasicMaterial color={gold} />
+          <meshBasicMaterial color={mainColor} />
         </mesh>
       ))}
     </group>
@@ -238,9 +239,12 @@ function CityDots({ gold }: { gold: THREE.Color }) {
 }
 
 /* ── Globe with real NASA texture ───────────────────────────── */
-function GlobeInner({ variant = "pulse", gold, goldDim }: { variant?: "pulse" | "laser" | "burst"; gold: THREE.Color; goldDim: THREE.Color }) {
+function GlobeInner({ variant = "pulse", accentColor = "#f2c84b" }: { variant?: "pulse" | "laser" | "burst"; accentColor?: string }) {
   const globeRef = useRef<THREE.Group>(null);
   const earthTex = useLoader(THREE.TextureLoader, EARTH_TEXTURE_URL);
+
+  const mainColor = useMemo(() => new THREE.Color(accentColor), [accentColor]);
+  const dimColor = useMemo(() => mainColor.clone().multiplyScalar(0.4), [mainColor]);
 
   useFrame(({ clock }) => {
     if (globeRef.current) {
@@ -264,69 +268,43 @@ function GlobeInner({ variant = "pulse", gold, goldDim }: { variant?: "pulse" | 
             }
           }}
           emissiveMap={earthTex}
-          emissive={gold}
+          emissive={mainColor}
           emissiveIntensity={2.2}
           roughness={1.0}
           metalness={0.0}
         />
       </mesh>
 
-      <CityDots gold={gold} />
+      <CityDots mainColor={mainColor} />
 
       {ROUTES.map((route, i) => (
-        <DataArc key={i} route={route} index={i} variant={variant} gold={gold} goldDim={goldDim} />
+        <DataArc key={i} route={route} index={i} variant={variant} mainColor={mainColor} dimColor={dimColor} />
       ))}
     </group>
   );
 }
 
-/* ── React Hook for dynamic theme color sync ────────────────── */
-function useThemeColors() {
-  const [colors, setColors] = useState(() => {
-    return {
-      gold: new THREE.Color("#f2c84b"),
-      goldDim: new THREE.Color("#f2c84b").clone().multiplyScalar(0.4)
-    };
+/* ── Exported Canvas wrapper ────────────────────────────────── */
+export default function GlobeScene({ variant = "pulse" }: { variant?: "pulse" | "laser" | "burst" }) {
+  const [accentColor, setAccentColor] = useState(() => {
+    if (typeof window !== "undefined") {
+      const rootStyle = window.getComputedStyle(document.documentElement);
+      const coreColor = rootStyle.getPropertyValue("--theme-accent-rgb").trim();
+      if (coreColor) return `rgb(${coreColor})`;
+    }
+    return "#f2c84b";
   });
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const updateColors = () => {
-      const style = window.getComputedStyle(document.documentElement);
-      const accentRgb = style.getPropertyValue("--theme-accent-rgb").trim();
-      if (accentRgb) {
-        const goldColor = new THREE.Color(`rgb(${accentRgb})`);
-        const goldDimColor = goldColor.clone().multiplyScalar(0.4);
-        setColors({ gold: goldColor, goldDim: goldDimColor });
+    const handle = (e: Event) => {
+      const customEvent = e as CustomEvent<string>;
+      if (customEvent.detail) {
+        setAccentColor(customEvent.detail);
       }
     };
-
-    updateColors();
-
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        if (mutation.attributeName === "style") {
-          updateColors();
-          break;
-        }
-      }
-    });
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["style"]
-    });
-
-    return () => observer.disconnect();
+    window.addEventListener("themeColorChange", handle);
+    return () => window.removeEventListener("themeColorChange", handle);
   }, []);
-
-  return colors;
-}
-
-/* ── Exported Canvas wrapper ────────────────────────────────── */
-export default function GlobeScene({ variant = "pulse" }: { variant?: "pulse" | "laser" | "burst" }) {
-  const { gold, goldDim } = useThemeColors();
 
   return (
     <Canvas
@@ -337,7 +315,7 @@ export default function GlobeScene({ variant = "pulse" }: { variant?: "pulse" | 
     >
       <ambientLight intensity={1.5} color="#ffffff" />
       <Suspense fallback={null}>
-        <GlobeInner variant={variant} gold={gold} goldDim={goldDim} />
+        <GlobeInner variant={variant} accentColor={accentColor} />
       </Suspense>
       <OrbitControls
         enableZoom={false}
