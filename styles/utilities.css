@@ -3,7 +3,7 @@
 .btn::before { content:""; position:absolute; inset:0; background:currentColor; transform:translateX(-105%); transition:transform .45s var(--ease-weight); opacity:.1; }
 .btn:hover::before, .btn:focus-visible::before { transform:translateX(0); }
 .btn:hover { transform: translateY(-2px); }
-.btn.primary { background:var(--black); color:var(--yellow-core); border-color:var(--black); }
+.btn.primary { background:var(--btn-primary-bg, var(--black)); color:var(--btn-primary-fg, var(--yellow-core)); border-color:var(--btn-primary-border, var(--black)); }
 .dark-panel .btn.primary, .site-footer .btn.primary, .placeholder-page .btn.primary, .contact-page .btn.primary { background:var(--yellow-core); color:var(--black); border-color:var(--yellow-core); }
 .btn.secondary { background:transparent; }
 .button-row { display:flex; flex-wrap:wrap; gap:14px; align-items:center; }

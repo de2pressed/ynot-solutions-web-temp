@@ -45,19 +45,23 @@ function buildArcCurve(lat1: number, lon1: number, lat2: number, lon2: number) {
 
 /* ── Per-route speed multipliers for variety ─────────────────── */
 const ROUTE_SPEEDS = [0.14, 0.11, 0.17, 0.13, 0.15, 0.12];
-const TRAIL_COUNT = 5;
-const TRAIL_SPACING = 0.04;
 
 /* ── Single animated arc with realistic data packets ────────── */
-function DataArc({ route, index }: { route: [number, number, number, number]; index: number }) {
+function DataArc({ route, index, variant = "pulse" }: { route: [number, number, number, number]; index: number; variant?: "pulse" | "laser" | "burst" }) {
   const groupRef = useRef<THREE.Group>(null);
   /* Lead dot + glow halo */
   const dotRef  = useRef<THREE.Mesh>(null);
   const glowRef = useRef<THREE.Mesh>(null);
+  
   /* Second packet */
   const dot2Ref  = useRef<THREE.Mesh>(null);
   const glow2Ref = useRef<THREE.Mesh>(null);
-  /* Trail particles for lead dot */
+
+  /* Third packet */
+  const dot3Ref  = useRef<THREE.Mesh>(null);
+  const glow3Ref = useRef<THREE.Mesh>(null);
+
+  /* Trail particles (up to 15) */
   const trailRefs = useRef<(THREE.Mesh | null)[]>([]);
 
   const curve = useMemo(() => buildArcCurve(route[0], route[1], route[2], route[3]), [route]);
@@ -66,11 +70,14 @@ function DataArc({ route, index }: { route: [number, number, number, number]; in
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
+    const trailCount = variant === "laser" ? 15 : variant === "pulse" ? 5 : 0;
+    const trailSpacing = variant === "laser" ? 0.012 : 0.04;
 
-    /* ── Lead packet with ease (sine smoothing) ── */
+    /* ── Packet 1 Position ── */
     const raw1 = (t * speed + index * 0.18) % 1;
-    const eased1 = 0.5 - 0.5 * Math.cos(raw1 * Math.PI * 2); // smooth accel/decel
+    const eased1 = 0.5 - 0.5 * Math.cos(raw1 * Math.PI * 2);
     const pos1 = curve.getPoint(eased1);
+    
     if (dotRef.current) {
       dotRef.current.position.copy(pos1);
       const pulse = 1 + 0.3 * Math.sin(t * 4 + index);
@@ -82,30 +89,82 @@ function DataArc({ route, index }: { route: [number, number, number, number]; in
       glowRef.current.scale.setScalar(glowPulse);
     }
 
-    /* ── Trail particles behind lead dot ── */
-    for (let i = 0; i < TRAIL_COUNT; i++) {
+    /* ── Trail particles ── */
+    for (let i = 0; i < 15; i++) {
       const trailMesh = trailRefs.current[i];
       if (trailMesh) {
-        const trailT = Math.max(0, raw1 - (i + 1) * TRAIL_SPACING);
-        const easedTrail = 0.5 - 0.5 * Math.cos(trailT * Math.PI * 2);
-        trailMesh.position.copy(curve.getPoint(easedTrail));
-        const fade = 1 - (i + 1) / (TRAIL_COUNT + 1);
-        trailMesh.scale.setScalar(fade * 0.7);
-        (trailMesh.material as THREE.MeshBasicMaterial).opacity = fade * 0.6;
+        if (i < trailCount) {
+          trailMesh.visible = true;
+          const trailT = Math.max(0, raw1 - (i + 1) * trailSpacing);
+          const easedTrail = 0.5 - 0.5 * Math.cos(trailT * Math.PI * 2);
+          trailMesh.position.copy(curve.getPoint(easedTrail));
+          
+          const fade = 1 - (i + 1) / (trailCount + 1);
+          const sizeScale = variant === "laser" ? 0.65 : 0.7;
+          trailMesh.scale.setScalar(fade * sizeScale);
+          (trailMesh.material as THREE.MeshBasicMaterial).opacity = fade * (variant === "laser" ? 0.8 : 0.6);
+        } else {
+          trailMesh.visible = false;
+        }
       }
     }
 
-    /* ── Second packet (offset, different phase) ── */
-    const raw2 = (t * speed * 0.8 + index * 0.18 + 0.52) % 1;
-    const eased2 = 0.5 - 0.5 * Math.cos(raw2 * Math.PI * 2);
-    const pos2 = curve.getPoint(eased2);
-    if (dot2Ref.current) {
-      dot2Ref.current.position.copy(pos2);
-      const pulse2 = 1 + 0.2 * Math.sin(t * 3 + index + 2);
-      dot2Ref.current.scale.setScalar(pulse2);
-    }
-    if (glow2Ref.current) {
-      glow2Ref.current.position.copy(pos2);
+    /* ── Packet 2 & 3 positions based on variant ── */
+    if (variant === "pulse") {
+      // Packet 2: separate offset trailing packet
+      const raw2 = (t * speed * 0.8 + index * 0.18 + 0.52) % 1;
+      const eased2 = 0.5 - 0.5 * Math.cos(raw2 * Math.PI * 2);
+      const pos2 = curve.getPoint(eased2);
+      
+      if (dot2Ref.current) {
+        dot2Ref.current.visible = true;
+        dot2Ref.current.position.copy(pos2);
+        dot2Ref.current.scale.setScalar(1 + 0.2 * Math.sin(t * 3 + index + 2));
+      }
+      if (glow2Ref.current) {
+        glow2Ref.current.visible = true;
+        glow2Ref.current.position.copy(pos2);
+      }
+      
+      if (dot3Ref.current) dot3Ref.current.visible = false;
+      if (glow3Ref.current) glow3Ref.current.visible = false;
+      
+    } else if (variant === "burst") {
+      // Packet 2: closely trailing packet 1 (middle of burst train)
+      const raw2 = Math.max(0, raw1 - 0.035);
+      const eased2 = 0.5 - 0.5 * Math.cos(raw2 * Math.PI * 2);
+      const pos2 = curve.getPoint(eased2);
+
+      if (dot2Ref.current) {
+        dot2Ref.current.visible = raw1 > 0.035;
+        dot2Ref.current.position.copy(pos2);
+        dot2Ref.current.scale.setScalar(0.85);
+      }
+      if (glow2Ref.current) {
+        glow2Ref.current.visible = raw1 > 0.035;
+        glow2Ref.current.position.copy(pos2);
+      }
+
+      // Packet 3: closely trailing packet 2 (tail of burst train)
+      const raw3 = Math.max(0, raw1 - 0.07);
+      const eased3 = 0.5 - 0.5 * Math.cos(raw3 * Math.PI * 2);
+      const pos3 = curve.getPoint(eased3);
+
+      if (dot3Ref.current) {
+        dot3Ref.current.visible = raw1 > 0.07;
+        dot3Ref.current.position.copy(pos3);
+        dot3Ref.current.scale.setScalar(0.7);
+      }
+      if (glow3Ref.current) {
+        glow3Ref.current.visible = raw1 > 0.07;
+        glow3Ref.current.position.copy(pos3);
+      }
+      
+    } else { // laser
+      if (dot2Ref.current) dot2Ref.current.visible = false;
+      if (glow2Ref.current) glow2Ref.current.visible = false;
+      if (dot3Ref.current) dot3Ref.current.visible = false;
+      if (glow3Ref.current) glow3Ref.current.visible = false;
     }
   });
 
@@ -116,7 +175,7 @@ function DataArc({ route, index }: { route: [number, number, number, number]; in
         <meshBasicMaterial color={GOLD_DIM} transparent opacity={0.35} />
       </mesh>
 
-      {/* Lead dot + glow halo */}
+      {/* Packet 1 */}
       <mesh ref={dotRef}>
         <sphereGeometry args={[0.032, 14, 14]} />
         <meshBasicMaterial color={GOLD} />
@@ -127,19 +186,29 @@ function DataArc({ route, index }: { route: [number, number, number, number]; in
       </mesh>
 
       {/* Trail particles */}
-      {Array.from({ length: TRAIL_COUNT }).map((_, i) => (
+      {Array.from({ length: 15 }).map((_, i) => (
         <mesh key={i} ref={(el) => { trailRefs.current[i] = el; }}>
           <sphereGeometry args={[0.022, 8, 8]} />
           <meshBasicMaterial color={GOLD} transparent opacity={0.5} />
         </mesh>
       ))}
 
-      {/* Second packet + glow */}
+      {/* Packet 2 */}
       <mesh ref={dot2Ref}>
         <sphereGeometry args={[0.024, 12, 12]} />
         <meshBasicMaterial color={GOLD} transparent opacity={0.8} />
       </mesh>
       <mesh ref={glow2Ref}>
+        <sphereGeometry args={[0.05, 10, 10]} />
+        <meshBasicMaterial color={GOLD} transparent opacity={0.12} />
+      </mesh>
+
+      {/* Packet 3 */}
+      <mesh ref={dot3Ref}>
+        <sphereGeometry args={[0.024, 12, 12]} />
+        <meshBasicMaterial color={GOLD} transparent opacity={0.8} />
+      </mesh>
+      <mesh ref={glow3Ref}>
         <sphereGeometry args={[0.05, 10, 10]} />
         <meshBasicMaterial color={GOLD} transparent opacity={0.12} />
       </mesh>
@@ -171,7 +240,7 @@ function CityDots() {
 }
 
 /* ── Globe with real NASA texture ───────────────────────────── */
-function GlobeInner() {
+function GlobeInner({ variant = "pulse" }: { variant?: "pulse" | "laser" | "burst" }) {
   const globeRef = useRef<THREE.Group>(null);
   const earthTex = useLoader(THREE.TextureLoader, EARTH_TEXTURE_URL);
 
@@ -207,14 +276,14 @@ function GlobeInner() {
       <CityDots />
 
       {ROUTES.map((route, i) => (
-        <DataArc key={i} route={route} index={i} />
+        <DataArc key={i} route={route} index={i} variant={variant} />
       ))}
     </group>
   );
 }
 
 /* ── Exported Canvas wrapper ────────────────────────────────── */
-export default function GlobeScene() {
+export default function GlobeScene({ variant = "pulse" }: { variant?: "pulse" | "laser" | "burst" }) {
   return (
     <Canvas
       className="globe-canvas"
@@ -224,7 +293,7 @@ export default function GlobeScene() {
     >
       <ambientLight intensity={1.5} color="#ffffff" />
       <Suspense fallback={null}>
-        <GlobeInner />
+        <GlobeInner variant={variant} />
       </Suspense>
       <OrbitControls
         enableZoom={false}

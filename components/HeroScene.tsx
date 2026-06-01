@@ -1,6 +1,3 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import { Button } from "./Button";
 
 const steps = ["build", "test", "registry", "rollout", "observe"];
@@ -12,20 +9,6 @@ const logs = [
 ];
 
 export function HeroScene() {
-  const [themeColor, setThemeColor] = useState<"core" | "vibrant" | "electric" | "amber">("core");
-
-  // Dynamically update theme color CSS property on the document element
-  useEffect(() => {
-    const root = document.documentElement;
-    const colors = {
-      core: "242, 200, 75",
-      vibrant: "255, 210, 28",
-      electric: "255, 199, 0",
-      amber: "255, 165, 0"
-    };
-    root.style.setProperty("--theme-yellow-rgb", colors[themeColor]);
-  }, [themeColor]);
-
   return (
     <section className="hero-section" data-header-theme="light">
       <div className="hero-copy">
@@ -37,44 +20,6 @@ export function HeroScene() {
         </div>
       </div>
       <div className="hero-visual" aria-label="Operational DevOps deployment interface">
-        <div className="color-picker-wrap" aria-label="Theme color controller">
-          <span>Theme</span>
-          <div className="color-swatches" role="group">
-            <button
-              type="button"
-              className={`color-swatch ${themeColor === "core" ? "active" : ""}`}
-              style={{ "--swatch-color": "#f2c84b" } as React.CSSProperties}
-              onClick={() => setThemeColor("core")}
-              data-label="Core"
-              aria-label="Set core yellow theme"
-            />
-            <button
-              type="button"
-              className={`color-swatch ${themeColor === "vibrant" ? "active" : ""}`}
-              style={{ "--swatch-color": "#ffd21c" } as React.CSSProperties}
-              onClick={() => setThemeColor("vibrant")}
-              data-label="Vibrant"
-              aria-label="Set vibrant yellow theme"
-            />
-            <button
-              type="button"
-              className={`color-swatch ${themeColor === "electric" ? "active" : ""}`}
-              style={{ "--swatch-color": "#ffc700" } as React.CSSProperties}
-              onClick={() => setThemeColor("electric")}
-              data-label="Electric"
-              aria-label="Set electric yellow theme"
-            />
-            <button
-              type="button"
-              className={`color-swatch ${themeColor === "amber" ? "active" : ""}`}
-              style={{ "--swatch-color": "#ffa500" } as React.CSSProperties}
-              onClick={() => setThemeColor("amber")}
-              data-label="Amber"
-              aria-label="Set amber yellow theme"
-            />
-          </div>
-        </div>
-
         <div className="terminal-float-container float-subtle">
           <div className="mac-terminal" data-testid="hero-mac-terminal" aria-label="Mac terminal showing a DevOps deployment">
             <div className="mac-terminal__chrome">

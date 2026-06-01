@@ -3,10 +3,13 @@
 import dynamic from "next/dynamic";
 import { Button } from "./Button";
 
-const GlobeScene = dynamic(() => import("./GlobeScene"), {
-  ssr: false,
-  loading: () => <div className="globe-canvas-fallback" aria-hidden="true" />,
-});
+const GlobeScene = dynamic<{ variant: "pulse" | "laser" | "burst" }>(
+  () => import("./GlobeScene"),
+  {
+    ssr: false,
+    loading: () => <div className="globe-canvas-fallback" aria-hidden="true" />,
+  }
+);
 
 export function GlobeClimax() {
   return (
@@ -18,7 +21,7 @@ export function GlobeClimax() {
         <Button href="/contact">Plan Your Infrastructure</Button>
       </div>
       <div className="globe-canvas-wrap" data-testid="visible-globe" aria-label="Interactive 3D globe with deployment routes">
-        <GlobeScene />
+        <GlobeScene variant="laser" />
       </div>
     </section>
   );

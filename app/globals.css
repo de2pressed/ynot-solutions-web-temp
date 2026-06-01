@@ -5,11 +5,11 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; background: var(--black); }
-body { margin: 0; min-height: 100vh; font-family: var(--font-sans); color: var(--ink); background: var(--yellow-core); overflow-x: hidden; }
+body { margin: 0; min-height: 100vh; font-family: var(--font-sans); color: var(--ink); background: rgb(var(--theme-yellow-rgb)); overflow-x: hidden; }
 a { color: inherit; text-decoration: none; }
 button, input, textarea, select { font: inherit; }
 ::selection { background: var(--black); color: var(--yellow-core); }
-.home-shell { position: relative; background: linear-gradient(180deg, var(--yellow-core) 0 38%, #171206 48%, var(--black) 59%); overflow: hidden; }
+.home-shell { position: relative; background: linear-gradient(180deg, rgb(var(--theme-yellow-rgb)) 0 38%, #171206 48%, var(--black) 59%); overflow: hidden; }
 .section-panel { min-height: 100vh; position: relative; padding: clamp(90px, 12vw, 180px) var(--page-pad); }
 .dark-panel { color: var(--white); background: radial-gradient(circle at 50% 10%, rgba(242,200,75,.12), transparent 32%), var(--black); }
 .section-copy { max-width: 980px; position: relative; z-index: 2; }
