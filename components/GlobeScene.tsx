@@ -26,11 +26,10 @@ const ROUTES: [number, number, number, number][] = [
   [55.8,  37.6, -1.3,    36.8],    // Moscow → Nairobi
 ];
 
-const GLOBE_RADIUS = 1.4;
+const GLOBE_RADIUS = 2.0;
 const ARC_ALTITUDE = 0.32;
 const GOLD = new THREE.Color("#f2c84b");
 const GOLD_DIM = new THREE.Color("#a08420");
-const GRID_COLOR = new THREE.Color("#f2c84b");
 
 /* ── NASA Earth texture URL (public domain, night-lights) ── */
 const EARTH_TEXTURE_URL = "https://unpkg.com/three-globe@2.41.12/example/img/earth-night.jpg";
@@ -44,34 +43,105 @@ function buildArcCurve(lat1: number, lon1: number, lat2: number, lon2: number) {
   return new THREE.QuadraticBezierCurve3(start, mid, end);
 }
 
-/* ── Single animated arc ────────────────────────────────────── */
+/* ── Per-route speed multipliers for variety ─────────────────── */
+const ROUTE_SPEEDS = [0.14, 0.11, 0.17, 0.13, 0.15, 0.12];
+const TRAIL_COUNT = 5;
+const TRAIL_SPACING = 0.04;
+
+/* ── Single animated arc with realistic data packets ────────── */
 function DataArc({ route, index }: { route: [number, number, number, number]; index: number }) {
+  const groupRef = useRef<THREE.Group>(null);
+  /* Lead dot + glow halo */
   const dotRef  = useRef<THREE.Mesh>(null);
-  const dot2Ref = useRef<THREE.Mesh>(null);
+  const glowRef = useRef<THREE.Mesh>(null);
+  /* Second packet */
+  const dot2Ref  = useRef<THREE.Mesh>(null);
+  const glow2Ref = useRef<THREE.Mesh>(null);
+  /* Trail particles for lead dot */
+  const trailRefs = useRef<(THREE.Mesh | null)[]>([]);
 
   const curve = useMemo(() => buildArcCurve(route[0], route[1], route[2], route[3]), [route]);
-  const tubeGeo = useMemo(() => new THREE.TubeGeometry(curve, 64, 0.006, 8, false), [curve]);
+  const tubeGeo = useMemo(() => new THREE.TubeGeometry(curve, 64, 0.005, 8, false), [curve]);
+  const speed = ROUTE_SPEEDS[index % ROUTE_SPEEDS.length];
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
-    const p1 = ((t * 0.16 + index * 0.22) % 1);
-    if (dotRef.current) dotRef.current.position.copy(curve.getPoint(p1));
-    const p2 = ((t * 0.16 + index * 0.22 + 0.4) % 1);
-    if (dot2Ref.current) dot2Ref.current.position.copy(curve.getPoint(p2));
+
+    /* ── Lead packet with ease (sine smoothing) ── */
+    const raw1 = (t * speed + index * 0.18) % 1;
+    const eased1 = 0.5 - 0.5 * Math.cos(raw1 * Math.PI * 2); // smooth accel/decel
+    const pos1 = curve.getPoint(eased1);
+    if (dotRef.current) {
+      dotRef.current.position.copy(pos1);
+      const pulse = 1 + 0.3 * Math.sin(t * 4 + index);
+      dotRef.current.scale.setScalar(pulse);
+    }
+    if (glowRef.current) {
+      glowRef.current.position.copy(pos1);
+      const glowPulse = 1 + 0.5 * Math.sin(t * 3.5 + index);
+      glowRef.current.scale.setScalar(glowPulse);
+    }
+
+    /* ── Trail particles behind lead dot ── */
+    for (let i = 0; i < TRAIL_COUNT; i++) {
+      const trailMesh = trailRefs.current[i];
+      if (trailMesh) {
+        const trailT = Math.max(0, raw1 - (i + 1) * TRAIL_SPACING);
+        const easedTrail = 0.5 - 0.5 * Math.cos(trailT * Math.PI * 2);
+        trailMesh.position.copy(curve.getPoint(easedTrail));
+        const fade = 1 - (i + 1) / (TRAIL_COUNT + 1);
+        trailMesh.scale.setScalar(fade * 0.7);
+        (trailMesh.material as THREE.MeshBasicMaterial).opacity = fade * 0.6;
+      }
+    }
+
+    /* ── Second packet (offset, different phase) ── */
+    const raw2 = (t * speed * 0.8 + index * 0.18 + 0.52) % 1;
+    const eased2 = 0.5 - 0.5 * Math.cos(raw2 * Math.PI * 2);
+    const pos2 = curve.getPoint(eased2);
+    if (dot2Ref.current) {
+      dot2Ref.current.position.copy(pos2);
+      const pulse2 = 1 + 0.2 * Math.sin(t * 3 + index + 2);
+      dot2Ref.current.scale.setScalar(pulse2);
+    }
+    if (glow2Ref.current) {
+      glow2Ref.current.position.copy(pos2);
+    }
   });
 
   return (
-    <group>
+    <group ref={groupRef}>
+      {/* Arc tube */}
       <mesh geometry={tubeGeo}>
-        <meshBasicMaterial color={GOLD_DIM} transparent opacity={0.4} />
+        <meshBasicMaterial color={GOLD_DIM} transparent opacity={0.35} />
       </mesh>
+
+      {/* Lead dot + glow halo */}
       <mesh ref={dotRef}>
-        <sphereGeometry args={[0.022, 12, 12]} />
+        <sphereGeometry args={[0.032, 14, 14]} />
         <meshBasicMaterial color={GOLD} />
       </mesh>
+      <mesh ref={glowRef}>
+        <sphereGeometry args={[0.07, 12, 12]} />
+        <meshBasicMaterial color={GOLD} transparent opacity={0.18} />
+      </mesh>
+
+      {/* Trail particles */}
+      {Array.from({ length: TRAIL_COUNT }).map((_, i) => (
+        <mesh key={i} ref={(el) => { trailRefs.current[i] = el; }}>
+          <sphereGeometry args={[0.022, 8, 8]} />
+          <meshBasicMaterial color={GOLD} transparent opacity={0.5} />
+        </mesh>
+      ))}
+
+      {/* Second packet + glow */}
       <mesh ref={dot2Ref}>
-        <sphereGeometry args={[0.015, 10, 10]} />
-        <meshBasicMaterial color={GOLD} transparent opacity={0.55} />
+        <sphereGeometry args={[0.024, 12, 12]} />
+        <meshBasicMaterial color={GOLD} transparent opacity={0.8} />
+      </mesh>
+      <mesh ref={glow2Ref}>
+        <sphereGeometry args={[0.05, 10, 10]} />
+        <meshBasicMaterial color={GOLD} transparent opacity={0.12} />
       </mesh>
     </group>
   );
@@ -83,16 +153,6 @@ function AtmosphereGlow() {
     <mesh>
       <sphereGeometry args={[GLOBE_RADIUS + 0.05, 64, 64]} />
       <meshBasicMaterial color={GOLD} transparent opacity={0.04} side={THREE.BackSide} />
-    </mesh>
-  );
-}
-
-/* ── Grid wireframe ─────────────────────────────────────────── */
-function GlobeWireframe() {
-  return (
-    <mesh>
-      <sphereGeometry args={[GLOBE_RADIUS + 0.004, 36, 18]} />
-      <meshBasicMaterial color={GRID_COLOR} wireframe transparent opacity={0.055} />
     </mesh>
   );
 }
@@ -139,13 +199,12 @@ function GlobeInner() {
           map={earthTex}
           emissiveMap={earthTex}
           emissive={new THREE.Color("#f2c84b")}
-          emissiveIntensity={0.35}
-          roughness={0.85}
-          metalness={0.1}
+          emissiveIntensity={1.2}
+          roughness={0.7}
+          metalness={0.05}
         />
       </mesh>
 
-      <GlobeWireframe />
       <AtmosphereGlow />
       <CityDots />
 
@@ -161,12 +220,12 @@ export default function GlobeScene() {
   return (
     <Canvas
       className="globe-canvas"
-      camera={{ position: [0, 0.4, 6.8], fov: 38 }}
+      camera={{ position: [0, 0.4, 7.8], fov: 38 }}
       gl={{ antialias: true, alpha: true }}
       style={{ background: "transparent" }}
     >
-      <ambientLight intensity={0.3} color="#f2c84b" />
-      <directionalLight position={[3, 2, 5]} intensity={0.6} color="#f7f3e8" />
+      <ambientLight intensity={0.5} color="#f2c84b" />
+      <directionalLight position={[3, 2, 5]} intensity={0.9} color="#f7f3e8" />
       <pointLight position={[-4, -2, -3]} intensity={0.2} color="#f2c84b" />
       <Suspense fallback={null}>
         <GlobeInner />

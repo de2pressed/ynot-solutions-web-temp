@@ -2,7 +2,6 @@ import { ControlPlaneDemo } from "@/components/ControlPlaneDemo";
 import { AmbientSystem } from "@/components/AmbientSystem";
 import { HeroScene } from "@/components/HeroScene";
 import { InfrastructureLandscape } from "@/components/InfrastructureLandscape";
-import { CapabilityGrid } from "@/components/CapabilityGrid";
 import { ProcessRoute } from "@/components/ProcessRoute";
 import { GlobeClimax } from "@/components/GlobeClimax";
 
@@ -12,7 +11,6 @@ export default function Home() {
       <AmbientSystem />
       <HeroScene />
       <InfrastructureLandscape />
-      <CapabilityGrid />
       <section className="core-section section-panel dark-panel" id="modern-workloads" data-header-theme="dark">
         <div className="section-copy narrow">
           <p className="eyebrow">CONTROL PLANE / MODERN WORKLOADS</p>
@@ -23,8 +21,8 @@ export default function Home() {
         </div>
         <ControlPlaneDemo />
       </section>
-      <ProcessRoute />
       <GlobeClimax />
+      <ProcessRoute />
     </main>
   );
 }

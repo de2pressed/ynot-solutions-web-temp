@@ -18,7 +18,7 @@ export function HeroScene() {
         <p className="hero-lede">Infrastructure that just works — so your team can focus on building, not firefighting.</p>
         <div className="button-row">
           <Button href="/contact">Plan a Deployment</Button>
-          <Button href="#capabilities" variant="secondary">Explore Capabilities</Button>
+          <Button href="#landscape" variant="secondary">Explore Landscape</Button>
         </div>
         <div className="hero-chips">{chips.map((chip) => <span key={chip}>{chip}</span>)}</div>
       </div>
