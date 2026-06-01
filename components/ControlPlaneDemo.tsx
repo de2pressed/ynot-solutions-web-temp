@@ -16,8 +16,13 @@ export function ControlPlaneDemo() {
   return (
     <div className="control-plane" data-testid="control-plane-demo" aria-label="YNot DevOps control plane dashboard">
       <div className="control-plane__chrome">
-        <strong>YNot Control Plane</strong>
-        <div>
+        <div className="window-controls">
+          <span className="traffic red" />
+          <span className="traffic amber" />
+          <span className="traffic green" />
+        </div>
+        <strong className="control-plane__title">YNot Control Plane</strong>
+        <div className="control-plane__status">
           <span>prod</span>
           <span className="healthy">healthy</span>
           <span>0 incidents</span>

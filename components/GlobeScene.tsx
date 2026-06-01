@@ -199,9 +199,9 @@ function GlobeInner() {
           map={earthTex}
           emissiveMap={earthTex}
           emissive={new THREE.Color("#f2c84b")}
-          emissiveIntensity={1.2}
-          roughness={0.7}
-          metalness={0.05}
+          emissiveIntensity={2.2}
+          roughness={1.0}
+          metalness={0.0}
         />
       </mesh>
 
@@ -224,9 +224,7 @@ export default function GlobeScene() {
       gl={{ antialias: true, alpha: true }}
       style={{ background: "transparent" }}
     >
-      <ambientLight intensity={0.5} color="#f2c84b" />
-      <directionalLight position={[3, 2, 5]} intensity={0.9} color="#f7f3e8" />
-      <pointLight position={[-4, -2, -3]} intensity={0.2} color="#f2c84b" />
+      <ambientLight intensity={1.5} color="#ffffff" />
       <Suspense fallback={null}>
         <GlobeInner />
       </Suspense>
