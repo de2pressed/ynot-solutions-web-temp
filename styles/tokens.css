@@ -1,0 +1,18 @@
+:root {
+  --yellow-core: #f2c84b;
+  --yellow-soft: #f7da72;
+  --yellow-deep: #c9971a;
+  --black: #050505;
+  --black-soft: #0d0d0a;
+  --ink: #11100b;
+  --white: #f7f3e8;
+  --muted: #a8a090;
+  --line-yellow: rgba(17, 16, 11, 0.2);
+  --line-dark: rgba(247, 243, 232, 0.14);
+  --signal: #79a7ff;
+  --page-pad: clamp(20px, 4.5vw, 72px);
+  --font-sans: "Geist", Inter, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ease-weight: cubic-bezier(.19, 1, .22, 1);
+}
