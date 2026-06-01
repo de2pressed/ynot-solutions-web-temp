@@ -39,8 +39,6 @@
 .hero-section { position: relative; z-index: 2; min-height: 100vh; padding: clamp(112px, 14vw, 178px) var(--page-pad) clamp(70px, 8vw, 120px); display:grid; grid-template-columns: minmax(0,1fr) minmax(520px,1.3fr); gap: clamp(34px, 5vw, 82px); align-items:center; }
 .hero-lede { max-width: 680px; font-size: clamp(1.15rem, 2vw, 1.55rem); color: rgba(17,16,11,.76); margin-bottom: 30px; }
 .tape { display:inline-flex; padding: 8px 12px; border:1px solid rgba(17,16,11,.35); background:rgba(17,16,11,.06); transform: rotate(-1deg); }
-.hero-chips { display:flex; flex-wrap:wrap; gap:10px; margin-top:28px; }
-.hero-chips span { font-family:var(--font-mono); font-size:.72rem; text-transform:uppercase; border:1px solid rgba(17,16,11,.2); padding:8px 10px; background:rgba(17,16,11,.05); }
 .hero-visual { position:relative; display:grid; place-items:center; min-width:0; }
 .mac-terminal { width:min(1010px,100%); color:var(--white); background:linear-gradient(180deg, rgba(18,17,14,.98), rgba(4,4,4,.98)); border:1px solid rgba(17,16,11,.86); border-radius:12px; box-shadow:0 38px 90px rgba(17,16,11,.34), 0 0 0 1px rgba(242,200,75,.09) inset; font-family:var(--font-mono); overflow:hidden; }
 .mac-terminal__chrome { display:grid; grid-template-columns:auto auto auto 1fr; align-items:center; gap:8px; min-height:42px; padding:0 16px; background:linear-gradient(180deg, rgba(247,243,232,.12), rgba(247,243,232,.035)); border-bottom:1px solid rgba(247,243,232,.13); }

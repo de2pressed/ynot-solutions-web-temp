@@ -1,6 +1,5 @@
 import { Button } from "./Button";
 
-const chips = ["CI/CD", "Cloud Infrastructure", "Kubernetes", "Automation"];
 const steps = ["build", "test", "registry", "rollout", "observe"];
 const logs = [
   "10:42:18  commit accepted from main",
@@ -20,7 +19,6 @@ export function HeroScene() {
           <Button href="/contact">Plan a Deployment</Button>
           <Button href="#landscape" variant="secondary">Explore Landscape</Button>
         </div>
-        <div className="hero-chips">{chips.map((chip) => <span key={chip}>{chip}</span>)}</div>
       </div>
       <div className="hero-visual" aria-label="Operational DevOps deployment interface">
         <div className="mac-terminal" data-testid="hero-mac-terminal" aria-label="Mac terminal showing a DevOps deployment">
