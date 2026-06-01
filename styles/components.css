@@ -529,6 +529,10 @@
   opacity: 1;
   color: var(--yellow-deep);
 }
+.theme-dark .theme-dropdown-toggle {
+  color: var(--yellow-core);
+  border-color: rgba(var(--theme-yellow-rgb), 0.75);
+}
 .theme-dark .theme-dropdown-toggle:hover {
   color: var(--yellow-core);
 }
