@@ -243,6 +243,9 @@ function GlobeInner({ variant = "pulse", accentColor = "#f2c84b" }: { variant?: 
   const globeRef = useRef<THREE.Group>(null);
   const earthTex = useLoader(THREE.TextureLoader, EARTH_TEXTURE_URL);
 
+  /* Globe always uses warm gold for the earth texture */
+  const globeEmissive = useMemo(() => new THREE.Color("#f2c84b"), []);
+  /* Arcs, dots, packets use the theme accent color */
   const mainColor = useMemo(() => new THREE.Color(accentColor), [accentColor]);
   const dimColor = useMemo(() => mainColor.clone().multiplyScalar(0.4), [mainColor]);
 
@@ -268,7 +271,7 @@ function GlobeInner({ variant = "pulse", accentColor = "#f2c84b" }: { variant?: 
             }
           }}
           emissiveMap={earthTex}
-          emissive={mainColor}
+          emissive={globeEmissive}
           emissiveIntensity={2.2}
           roughness={1.0}
           metalness={0.0}

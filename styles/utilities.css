@@ -4,6 +4,6 @@
 .btn:hover::before, .btn:focus-visible::before { transform:translateX(0); }
 .btn:hover { transform: translateY(-2px); }
 .btn.primary { background:var(--btn-primary-bg, var(--black)); color:var(--btn-primary-fg, var(--yellow-core)); border-color:var(--btn-primary-border, var(--black)); }
-.dark-panel .btn.primary, .site-footer .btn.primary, .placeholder-page .btn.primary, .contact-page .btn.primary { background:var(--btn-primary-bg); color:var(--btn-primary-fg); border-color:var(--btn-primary-border); }
+.dark-panel .btn.primary, .site-footer .btn.primary, .placeholder-page .btn.primary, .contact-page .btn.primary { background:rgb(var(--theme-accent-rgb)); color:var(--black); border-color:rgb(var(--theme-accent-rgb)); }
 .btn.secondary { background:transparent; }
 .button-row { display:flex; flex-wrap:wrap; gap:14px; align-items:center; }
