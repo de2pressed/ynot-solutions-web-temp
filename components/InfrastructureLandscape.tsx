@@ -1,3 +1,5 @@
+"use client";
+
 type InfraNode = {
   id: string;
   name: string;
@@ -76,14 +78,18 @@ export function InfrastructureLandscape() {
             </g>
           ))}
         </svg>
-        {nodes.map((node) => (
+        {nodes.map((node, index) => (
           <article
-            className={`infra-node align-${node.align ?? "center"}`}
+            className={`infra-node align-${node.align ?? "center"} style-opt-3 node-idx-${index}`}
             data-testid={`infra-node-${node.id}`}
             key={node.id}
-            style={{ "--x": `${node.x}%`, "--y": `${node.y}%` } as React.CSSProperties}
+            style={{ 
+              "--x": `${node.x}%`, 
+              "--y": `${node.y}%`,
+              "--index": index
+            } as React.CSSProperties}
           >
-            <span>{node.id}</span>
+            <span>{node.id} <span className="status-light" /></span>
             <h3>{node.name}</h3>
             <p>{node.desc}</p>
           </article>

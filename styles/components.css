@@ -64,7 +64,7 @@
 .cursor { display:inline-block; width:8px; height:1.05em; margin-left:6px; vertical-align:-2px; background:var(--yellow-core); animation: cursorBlink 1s steps(1) infinite; }
 .mac-terminal__status { display:flex; justify-content:center; padding:11px 16px; border-top:1px solid rgba(247,243,232,.12); color:rgba(247,243,232,.62); font-size:.7rem; text-transform:uppercase; letter-spacing:.08em; }
 
-.landscape-section { background: linear-gradient(180deg, transparent, rgba(5,5,5,.15)); z-index:2; }
+.landscape-section { background: linear-gradient(180deg, transparent, rgba(5,5,5,.15)); z-index:2; padding-bottom: clamp(30px, 3vw, 50px) !important; }
 .landscape-section .section-copy p:last-child { max-width: 720px; font-size:1.15rem; color:rgba(17,16,11,.72); }
 .route-board { position:relative; max-width:1600px; margin:70px auto 0; min-height:clamp(560px,48vw,760px); isolation:isolate; }
 .node-routes { position:absolute; inset:0; width:100%; height:100%; z-index:1; overflow:visible; }
@@ -74,13 +74,254 @@
 .route-path.feedback { opacity:.32; stroke-width:1.8; stroke-dasharray:8 14; stroke:rgba(242,200,75,.5); }
 .route-marker-halo { fill:rgba(242,200,75,.22); stroke:rgba(17,16,11,.24); }
 .route-marker { fill:var(--black); stroke:var(--yellow-core); stroke-width:3; }
-.infra-node { position:absolute; left:var(--x); top:var(--y); width:clamp(185px,14vw,240px); min-height:150px; transform:translate(-50%,-50%); background:rgba(17,16,11,.96); color:var(--white); border:1px solid rgba(17,16,11,.8); padding:16px; z-index:2; box-shadow:0 26px 60px rgba(17,16,11,.22); transition:transform .35s var(--ease-out), border-color .35s var(--ease-out), box-shadow .35s var(--ease-out); }
-.infra-node:hover { transform:translate(-50%,calc(-50% - 8px)); border-color:var(--yellow-core); box-shadow:0 34px 74px rgba(17,16,11,.3); }
+.infra-node {
+  position:absolute;
+  left:var(--x);
+  top:var(--y);
+  width:clamp(185px,14vw,240px);
+  min-height:150px;
+  --base-transform: translate(-50%, -50%);
+  transform: var(--base-transform);
+  color:var(--white);
+  padding:16px;
+  z-index:2;
+  transition:transform .35s var(--ease-out), border-color .35s var(--ease-out), box-shadow .35s var(--ease-out), background .35s var(--ease-out);
+  will-change: transform;
+}
+
+/* Premium Style Default */
+.infra-node.style-opt-3 {
+  background: linear-gradient(135deg, #181714, #080807);
+  border: 1px solid rgba(242, 200, 75, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 30px 65px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(242, 200, 75, 0.08);
+}
+.infra-node.style-opt-3::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  right: 18px;
+  width: 24px;
+  height: 1px;
+  background: rgba(242, 200, 75, 0.35);
+}
+.infra-node.style-opt-3::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 16px;
+  border: 1px solid var(--yellow-core);
+  box-shadow: 0 0 25px rgba(242, 200, 75, 0.25), inset 0 0 16px rgba(242, 200, 75, 0.12);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 3;
+  transition: opacity 0.35s ease;
+  will-change: opacity;
+}
+
+.infra-node.style-opt-3:hover {
+  transform: translate(-50%, calc(-50% - 8px)) !important;
+  border-color: var(--yellow-core) !important;
+  box-shadow: 0 35px 80px rgba(0, 0, 0, 0.6), inset 0 0 16px rgba(242, 200, 75, 0.15) !important;
+  animation: none !important;
+}
+.infra-node.style-opt-3:hover::after {
+  opacity: 1 !important;
+  animation: none !important;
+}
+.infra-node.style-opt-3:hover .status-light {
+  background: var(--yellow-core) !important;
+  box-shadow: 0 0 8px var(--yellow-core), 0 0 16px var(--yellow-core) !important;
+  animation: none !important;
+}
+
+/* Status light dot inside node cards */
+.status-light {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(242, 200, 75, 0.2);
+  margin-left: 8px;
+  vertical-align: middle;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* --- Card specific animation bindings (T = 8s Loop) --- */
+.infra-node.node-idx-0 { animation: floatProgress-0 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+.infra-node.node-idx-0::after { animation: glowProgress-0 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+.infra-node.node-idx-0 .status-light { animation: lightProgress-0 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+
+.infra-node.node-idx-1 { animation: floatProgress-1 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+.infra-node.node-idx-1::after { animation: glowProgress-1 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+.infra-node.node-idx-1 .status-light { animation: lightProgress-1 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+
+.infra-node.node-idx-2 { animation: floatProgress-2 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+.infra-node.node-idx-2::after { animation: glowProgress-2 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+.infra-node.node-idx-2 .status-light { animation: lightProgress-2 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+
+.infra-node.node-idx-3 { animation: floatProgress-3 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+.infra-node.node-idx-3::after { animation: glowProgress-3 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+.infra-node.node-idx-3 .status-light { animation: lightProgress-3 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+
+.infra-node.node-idx-4 { animation: floatProgress-4 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+.infra-node.node-idx-4::after { animation: glowProgress-4 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+.infra-node.node-idx-4 .status-light { animation: lightProgress-4 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+
+.infra-node.node-idx-5 { animation: floatProgress-5 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+.infra-node.node-idx-5::after { animation: glowProgress-5 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+.infra-node.node-idx-5 .status-light { animation: lightProgress-5 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+
+.infra-node.node-idx-6 { animation: floatProgress-6 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+.infra-node.node-idx-6::after { animation: glowProgress-6 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+.infra-node.node-idx-6 .status-light { animation: lightProgress-6 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+
+.infra-node.node-idx-7 { animation: floatProgress-7 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+.infra-node.node-idx-7::after { animation: glowProgress-7 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+.infra-node.node-idx-7 .status-light { animation: lightProgress-7 8s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
+
+/* --- Staggered Active / Flow Wave Keyframes (Stay-on behavior) --- */
+
+/* Node 01: Codebase (S_0 = 0%, R_0 = 3%) */
+@keyframes floatProgress-0 {
+  0% { transform: var(--base-transform) translate3d(0, 0, 0); }
+  3%, 85% { transform: var(--base-transform) translate3d(0, -6px, 0); }
+  92%, 100% { transform: var(--base-transform) translate3d(0, 0, 0); }
+}
+@keyframes glowProgress-0 {
+  0% { opacity: 0; }
+  3%, 85% { opacity: 1; }
+  92%, 100% { opacity: 0; }
+}
+@keyframes lightProgress-0 {
+  0% { background: rgba(242, 200, 75, 0.2); box-shadow: none; }
+  3%, 85% { background: var(--yellow-core); box-shadow: 0 0 8px var(--yellow-core), 0 0 16px var(--yellow-core); }
+  92%, 100% { background: rgba(242, 200, 75, 0.2); box-shadow: none; }
+}
+
+/* Node 02: CI/CD (S_1 = 10%, R_1 = 13%) */
+@keyframes floatProgress-1 {
+  0%, 10% { transform: var(--base-transform) translate3d(0, 0, 0); }
+  13%, 85% { transform: var(--base-transform) translate3d(0, -6px, 0); }
+  92%, 100% { transform: var(--base-transform) translate3d(0, 0, 0); }
+}
+@keyframes glowProgress-1 {
+  0%, 10% { opacity: 0; }
+  13%, 85% { opacity: 1; }
+  92%, 100% { opacity: 0; }
+}
+@keyframes lightProgress-1 {
+  0%, 10% { background: rgba(242, 200, 75, 0.2); box-shadow: none; }
+  13%, 85% { background: var(--yellow-core); box-shadow: 0 0 8px var(--yellow-core), 0 0 16px var(--yellow-core); }
+  92%, 100% { background: rgba(242, 200, 75, 0.2); box-shadow: none; }
+}
+
+/* Node 03: Registry (S_2 = 20%, R_2 = 23%) */
+@keyframes floatProgress-2 {
+  0%, 20% { transform: var(--base-transform) translate3d(0, 0, 0); }
+  23%, 85% { transform: var(--base-transform) translate3d(0, -6px, 0); }
+  92%, 100% { transform: var(--base-transform) translate3d(0, 0, 0); }
+}
+@keyframes glowProgress-2 {
+  0%, 20% { opacity: 0; }
+  23%, 85% { opacity: 1; }
+  92%, 100% { opacity: 0; }
+}
+@keyframes lightProgress-2 {
+  0%, 20% { background: rgba(242, 200, 75, 0.2); box-shadow: none; }
+  23%, 85% { background: var(--yellow-core); box-shadow: 0 0 8px var(--yellow-core), 0 0 16px var(--yellow-core); }
+  92%, 100% { background: rgba(242, 200, 75, 0.2); box-shadow: none; }
+}
+
+/* Node 04: IaC (S_3 = 30%, R_3 = 33%) */
+@keyframes floatProgress-3 {
+  0%, 30% { transform: var(--base-transform) translate3d(0, 0, 0); }
+  33%, 85% { transform: var(--base-transform) translate3d(0, -6px, 0); }
+  92%, 100% { transform: var(--base-transform) translate3d(0, 0, 0); }
+}
+@keyframes glowProgress-3 {
+  0%, 30% { opacity: 0; }
+  33%, 85% { opacity: 1; }
+  92%, 100% { opacity: 0; }
+}
+@keyframes lightProgress-3 {
+  0%, 30% { background: rgba(242, 200, 75, 0.2); box-shadow: none; }
+  33%, 85% { background: var(--yellow-core); box-shadow: 0 0 8px var(--yellow-core), 0 0 16px var(--yellow-core); }
+  92%, 100% { background: rgba(242, 200, 75, 0.2); box-shadow: none; }
+}
+
+/* Node 05: Kubernetes (S_4 = 40%, R_4 = 43%) */
+@keyframes floatProgress-4 {
+  0%, 40% { transform: var(--base-transform) translate3d(0, 0, 0); }
+  43%, 85% { transform: var(--base-transform) translate3d(0, -6px, 0); }
+  92%, 100% { transform: var(--base-transform) translate3d(0, 0, 0); }
+}
+@keyframes glowProgress-4 {
+  0%, 40% { opacity: 0; }
+  43%, 85% { opacity: 1; }
+  92%, 100% { opacity: 0; }
+}
+@keyframes lightProgress-4 {
+  0%, 40% { background: rgba(242, 200, 75, 0.2); box-shadow: none; }
+  43%, 85% { background: var(--yellow-core); box-shadow: 0 0 8px var(--yellow-core), 0 0 16px var(--yellow-core); }
+  92%, 100% { background: rgba(242, 200, 75, 0.2); box-shadow: none; }
+}
+
+/* Node 06: Cloud Runtime (S_5 = 50%, R_5 = 53%) */
+@keyframes floatProgress-5 {
+  0%, 50% { transform: var(--base-transform) translate3d(0, 0, 0); }
+  53%, 85% { transform: var(--base-transform) translate3d(0, -6px, 0); }
+  92%, 100% { transform: var(--base-transform) translate3d(0, 0, 0); }
+}
+@keyframes glowProgress-5 {
+  0%, 50% { opacity: 0; }
+  53%, 85% { opacity: 1; }
+  92%, 100% { opacity: 0; }
+}
+@keyframes lightProgress-5 {
+  0%, 50% { background: rgba(242, 200, 75, 0.2); box-shadow: none; }
+  53%, 85% { background: var(--yellow-core); box-shadow: 0 0 8px var(--yellow-core), 0 0 16px var(--yellow-core); }
+  92%, 100% { background: rgba(242, 200, 75, 0.2); box-shadow: none; }
+}
+
+/* Node 07: Observability (S_6 = 60%, R_6 = 63%) */
+@keyframes floatProgress-6 {
+  0%, 60% { transform: var(--base-transform) translate3d(0, 0, 0); }
+  63%, 85% { transform: var(--base-transform) translate3d(0, -6px, 0); }
+  92%, 100% { transform: var(--base-transform) translate3d(0, 0, 0); }
+}
+@keyframes glowProgress-6 {
+  0%, 60% { opacity: 0; }
+  63%, 85% { opacity: 1; }
+  92%, 100% { opacity: 0; }
+}
+@keyframes lightProgress-6 {
+  0%, 60% { background: rgba(242, 200, 75, 0.2); box-shadow: none; }
+  63%, 85% { background: var(--yellow-core); box-shadow: 0 0 8px var(--yellow-core), 0 0 16px var(--yellow-core); }
+  92%, 100% { background: rgba(242, 200, 75, 0.2); box-shadow: none; }
+}
+
+/* Node 08: Incident Loop (S_7 = 70%, R_7 = 73%) */
+@keyframes floatProgress-7 {
+  0%, 70% { transform: var(--base-transform) translate3d(0, 0, 0); }
+  73%, 85% { transform: var(--base-transform) translate3d(0, -6px, 0); }
+  92%, 100% { transform: var(--base-transform) translate3d(0, 0, 0); }
+}
+@keyframes glowProgress-7 {
+  0%, 70% { opacity: 0; }
+  73%, 85% { opacity: 1; }
+  92%, 100% { opacity: 0; }
+}
+@keyframes lightProgress-7 {
+  0%, 70% { background: rgba(242, 200, 75, 0.2); box-shadow: none; }
+  73%, 85% { background: var(--yellow-core); box-shadow: 0 0 8px var(--yellow-core), 0 0 16px var(--yellow-core); }
+  92%, 100% { background: rgba(242, 200, 75, 0.2); box-shadow: none; }
+}
 .infra-node span, .process-track span { font-family:var(--font-mono); color:var(--yellow-core); font-size:.72rem; }
 .infra-node p, .process-track p { color:var(--muted); font-size:.92rem; }
 .infra-node h3 { margin-bottom:18px; font-size:clamp(1.15rem,1.5vw,1.45rem); line-height:1.2; letter-spacing:-.03em; }
 
-.core-section { display:grid; grid-template-columns: minmax(0,.78fr) minmax(460px,1fr); gap:clamp(40px,5vw,80px); align-items:center; overflow:hidden; padding-block:clamp(110px,11vw,170px); background: radial-gradient(circle 600px at 50% 100%, rgba(242,200,75,.12), transparent), linear-gradient(180deg, transparent 0px, rgba(5,5,5,0.03) 100px, rgba(5,5,5,0.12) 220px, rgba(5,5,5,0.30) 360px, rgba(5,5,5,0.52) 500px, rgba(5,5,5,0.76) 660px, rgba(5,5,5,0.92) 800px, var(--black) 950px) !important; }
+.core-section { display:grid; grid-template-columns: minmax(0,.78fr) minmax(460px,1fr); gap:clamp(40px,5vw,80px); align-items:center; overflow:hidden; padding-top: clamp(40px, 4vw, 70px) !important; padding-bottom: clamp(110px, 11vw, 170px) !important; background: radial-gradient(circle 600px at 50% 100%, rgba(242,200,75,.12), transparent), linear-gradient(180deg, transparent 0px, rgba(5,5,5,0.05) 50px, rgba(5,5,5,0.2) 120px, rgba(5,5,5,0.45) 200px, rgba(5,5,5,0.72) 290px, rgba(5,5,5,0.92) 370px, var(--black) 450px) !important; }
 .core-section .section-copy h2 { font-size:clamp(3rem,6.6vw,6.8rem); }
 .core-section .section-copy p:last-child { color:rgba(247,243,232,.76); max-width:700px; }
 .control-plane { position:relative; z-index:2; min-width:0; border:1px solid rgba(247,243,232,.12); background:#090908; border-radius:14px; box-shadow:0 38px 120px rgba(0,0,0,.65); overflow:hidden; }
@@ -160,7 +401,7 @@
 
 @media (max-width: 1300px) {
   .hero-section, .core-section, .contact-hero { grid-template-columns:1fr; }
-  .core-section { padding-block:100px; }
+  .core-section { padding-top: 40px !important; padding-bottom: 100px !important; }
   .process-track { grid-template-columns:repeat(2,1fr); }
   .process-card { border-bottom:1px solid rgba(247,243,232,.12); }
   .globe-section { min-height:auto; padding-block:100px; display:flex; flex-direction:column; align-items:center; text-align:center; }
@@ -171,8 +412,11 @@
 @media (max-width: 980px) {
   .route-board { min-height:auto; display:grid; gap:14px; grid-template-columns:repeat(2,1fr); }
   .node-routes { display:none; }
-  .infra-node { position:relative; left:auto; top:auto; width:auto; min-height:auto; transform:none; }
-  .infra-node:hover { transform:translateY(-6px); }
+  .infra-node { position:relative; left:auto; top:auto; width:auto; min-height:auto; --base-transform: translate3d(0, 0, 0); transform: var(--base-transform); }
+  .infra-node.style-opt-3:hover {
+    transform: translate3d(0, -8px, 0) !important;
+    animation: none !important;
+  }
 }
 @media (max-width: 900px) {
   .site-header { grid-template-columns:auto 1fr auto; }
@@ -196,5 +440,6 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .cursor, .route-path, .draft-grid, .draft-lines path { animation:none!important; }
-  .process-card:hover, .process-card:focus-visible, .infra-node:hover { transform:none!important; }
+  .process-card:hover, .process-card:focus-visible, .infra-node:hover, .infra-node.style-opt-3:hover { transform:none!important; }
+  .infra-node, .infra-node::after, .status-light { animation: none !important; }
 }
