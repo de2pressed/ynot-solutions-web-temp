@@ -8,9 +8,11 @@ import { GlobeClimax } from "@/components/GlobeClimax";
 export default function Home() {
   return (
     <main className="home-shell">
-      <AmbientSystem />
-      <HeroScene />
-      <InfrastructureLandscape />
+      <div className="home-light-container">
+        <AmbientSystem />
+        <HeroScene />
+        <InfrastructureLandscape />
+      </div>
       <section className="core-section section-panel dark-panel" id="modern-workloads" data-header-theme="dark">
         <div className="section-copy narrow">
           <p className="eyebrow">CONTROL PLANE / MODERN WORKLOADS</p>

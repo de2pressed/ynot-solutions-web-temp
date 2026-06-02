@@ -2,24 +2,54 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { navItems } from "@/lib/navigation";
 
 export function Header() {
   const [open, setOpen] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const pathname = usePathname();
+  const isContactPage = pathname === "/contact";
+  const [scrollTheme, setScrollTheme] = useState<"light" | "dark">("light");
+  const [contactTheme, setContactTheme] = useState<"light" | "dark">("light");
+  const theme = isContactPage ? contactTheme : scrollTheme;
   const [themeColor, setThemeColor] = useState<"vibrant" | "sand" | "pastel" | "black" | "white" | "cyan" | "blue" | "green" | "gold">("white");
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
-    const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-header-theme]"));
-    if (!sections.length) return;
+    if (!isContactPage) return;
+
+    // Direct check on mount to prevent timing race conditions, deferred to avoid eslint warnings
+    const existing = document.documentElement.getAttribute("data-contact-theme");
+    if (existing === "light" || existing === "dark") {
+      setTimeout(() => {
+        setContactTheme(existing);
+      }, 0);
+    }
+
+    const handleContactTheme = (e: Event) => {
+      const customEvent = e as CustomEvent<{ theme: "light" | "dark" }>;
+      setContactTheme(customEvent.detail.theme);
+    };
+    window.addEventListener("contactThemeChange", handleContactTheme);
+    return () => {
+      window.removeEventListener("contactThemeChange", handleContactTheme);
+    };
+  }, [isContactPage]);
+
+  useEffect(() => {
+    if (isContactPage) return;
 
     const readTheme = () => {
+      const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-header-theme]"));
+      if (!sections.length) {
+        setScrollTheme("light");
+        return;
+      }
       const probeY = 84;
       const active = sections
         .map((section) => ({ section, rect: section.getBoundingClientRect() }))
         .find(({ rect }) => rect.top <= probeY && rect.bottom >= probeY);
-      setTheme(active?.section.dataset.headerTheme === "dark" ? "dark" : "light");
+      setScrollTheme(active?.section.dataset.headerTheme === "dark" ? "dark" : "light");
     };
 
     readTheme();
@@ -29,7 +59,7 @@ export function Header() {
       window.removeEventListener("scroll", readTheme);
       window.removeEventListener("resize", readTheme);
     };
-  }, []);
+  }, [isContactPage, pathname]);
 
   // Sync theme saturation colors with documentElement variables
   useEffect(() => {
@@ -79,7 +109,7 @@ export function Header() {
   };
 
   return (
-    <header className={`site-header theme-${theme}`} data-testid="site-header">
+    <header className={`site-header theme-${theme} ${isContactPage ? "non-sticky" : ""}`} data-testid="site-header">
       <Link className="brand" href="/" aria-label="YNot Solutions home" onClick={() => setOpen(false)}>
         <span>YNot Solutions</span>
       </Link>
