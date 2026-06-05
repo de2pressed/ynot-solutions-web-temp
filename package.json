@@ -12,6 +12,8 @@
   "dependencies": {
     "@react-three/drei": "latest",
     "@react-three/fiber": "latest",
+    "@types/animejs": "^3.1.13",
+    "animejs": "^4.4.1",
     "gsap": "latest",
     "next": "latest",
     "react": "latest",

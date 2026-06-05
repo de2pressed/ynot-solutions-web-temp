@@ -1,6 +1,19 @@
 :root {
+  /* Dynamic HSL Tokens */
+  --theme-accent-h: 45;
+  --theme-accent-s: 88%;
+  --theme-accent-l: 62%;
+  --theme-accent-hsl: var(--theme-accent-h) var(--theme-accent-s) var(--theme-accent-l);
+
+  --theme-yellow-h: 0;
+  --theme-yellow-s: 0%;
+  --theme-yellow-l: 100%;
+  --theme-yellow-hsl: var(--theme-yellow-h) var(--theme-yellow-s) var(--theme-yellow-l);
+
+  --yellow-core-hsl: var(--theme-accent-hsl);
+
   --yellow-core-rgb: 242, 200, 75;
-  --theme-yellow-rgb: 247, 243, 232; /* white theme default */
+  --theme-yellow-rgb: 255, 255, 255; /* pure white theme */
   --theme-accent-rgb: 242, 200, 75;
   --yellow-core: rgb(var(--theme-accent-rgb));
   --yellow-soft: #f7da72;
@@ -8,10 +21,10 @@
   --black: #050505;
   --black-soft: #0d0d0a;
   --ink: #11100b;           /* white theme default */
-  --white: #f7f3e8;
+  --white: #ffffff;
   --muted: #a8a090;
   --line-yellow: rgba(17, 16, 11, 0.2);
-  --line-dark: rgba(247, 243, 232, 0.14);
+  --line-dark: rgba(255, 255, 255, 0.14);
   --signal: #79a7ff;
   --page-pad: clamp(20px, 4.5vw, 72px);
   --font-sans: "Geist", Inter, system-ui, sans-serif;
@@ -22,7 +35,51 @@
   --topo-line-color: rgba(17, 16, 11, 0.28);
   --mac-terminal-border: rgba(17, 16, 11, 0.86);
   --btn-primary-bg: #050505;
-  --btn-primary-fg: #f7f3e8;  /* white theme: light text on dark button */
+  --btn-primary-fg: #ffffff;  /* white theme: pure white text on dark button */
   --btn-primary-border: #050505;
   --transition-color: #171206; /* seamless dark warm brown mid-band */
+
+  /* ─── Semantic Role Tokens (white/default theme values) ─────────────────── */
+  /* Injected dynamically per-theme by Header.tsx on documentElement */
+  --surface-primary:   rgb(var(--theme-yellow-rgb));
+  --surface-secondary: rgba(255, 255, 255, 0.65);
+  --surface-elevated:  #ffffff;
+  --surface-dark:      #050505;
+
+  --text-primary:      var(--ink);
+  --text-secondary:    #555246;
+  --text-muted:        #888078;
+
+  --border-soft:       rgba(17, 16, 11, 0.08);
+  --border-strong:     rgba(17, 16, 11, 0.2);
+  --border-accent:     rgba(var(--theme-accent-rgb), 0.35);
+
+  --accent-primary:    rgb(var(--theme-accent-rgb));
+  --accent-hover:      var(--yellow-soft);
+  --accent-deep:       var(--yellow-deep);
+
+  --glow-primary:      rgba(var(--theme-accent-rgb), 0.25);
+  --glow-strength:     1;           /* multiplier: 0–1 scale, reduced on light themes */
+
+  --shadow-color:      rgba(17, 16, 11, 0.08);
+  --shadow-strong:     rgba(17, 16, 11, 0.18);
+
+  --overlay-strength:  0.09;        /* ambient grid opacity scale */
+
+  --interactive-bg:    var(--btn-primary-bg);
+  --interactive-fg:    var(--btn-primary-fg);
+  --interactive-hover: rgba(17, 16, 11, 0.85);
+  --interactive-active:rgba(17, 16, 11, 0.7);
+
+  /* Card surface for light themes (white) */
+  --card-bg:           rgba(255, 255, 255, 0.65);
+  --card-bg-hover:     #ffffff;
+  --card-border:       rgba(17, 16, 11, 0.08);
+  --card-border-hover: rgba(17, 16, 11, 0.18);
+  --card-text:         var(--ink);
+  --card-text-muted:   #555246;
+
+  /* Marquee / Strip */
+  --strip-bg:          rgba(255, 255, 255, 0.9);
+  --strip-border:      rgba(17, 16, 11, 0.08);
 }

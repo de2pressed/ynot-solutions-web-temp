@@ -61,7 +61,7 @@ export function InfrastructureLandscape() {
   return (
     <section className="landscape-section section-panel" id="landscape" data-header-theme="light">
       <div className="section-copy">
-        <p className="eyebrow">CONNECTED DEVOPS ECOSYSTEM</p>
+
         <h2>From commit to cloud, every layer coordinated.</h2>
         <p>YNot Solutions designs and operates the DevOps systems behind fast releases: pipelines, clusters, cloud automation, monitoring, and the handoffs between them.</p>
       </div>

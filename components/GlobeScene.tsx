@@ -287,8 +287,200 @@ function GlobeInner({ variant = "pulse", accentColor = "#f2c84b" }: { variant?: 
   );
 }
 
+/* ── Fallback 2D Globe Component (Non-WebGL support) ──────────────────────── */
+function FallbackGlobe({ variant, accentColor }: { variant: string; accentColor: string }) {
+  const [angle, setAngle] = useState(0);
+  const [packetProgress, setPacketProgress] = useState(0);
+
+  useEffect(() => {
+    let animId: number;
+    let lastTime = Date.now();
+    const tick = () => {
+      const now = Date.now();
+      const delta = (now - lastTime) / 1000;
+      lastTime = now;
+      
+      setAngle((a) => (a + 0.25 * delta) % (Math.PI * 2));
+      setPacketProgress((p) => (p + 0.2 * delta) % 1.0);
+      animId = requestAnimationFrame(tick);
+    };
+    animId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animId);
+  }, []);
+
+  const r = 145; // globe radius
+  
+  // City locations parsed from ROUTES
+  const cities = useMemo(() => {
+    const uniqueCities: [number, number][] = [
+      [40.7, -74.0], [51.5, -0.1],
+      [35.7, 139.7], [-33.9, 151.2],
+      [-23.5, -46.6], [6.5, 3.4],
+      [37.8, -122.4], [1.3, 103.9],
+      [48.9, 2.3], [28.6, 77.2],
+      [55.8, 37.6], [-1.3, 36.8]
+    ];
+    return uniqueCities.map(([lat, lon]) => {
+      const phi = (90 - lat) * (Math.PI / 180);
+      const theta = (lon + 180) * (Math.PI / 180);
+      return {
+        x: -r * Math.sin(phi) * Math.cos(theta),
+        y: r * Math.cos(phi),
+        z: r * Math.sin(phi) * Math.sin(theta)
+      };
+    });
+  }, []);
+
+  const rotatedCities = useMemo(() => {
+    const cosA = Math.cos(angle);
+    const sinA = Math.sin(angle);
+    return cities.map((c) => {
+      const rx = c.x * cosA - c.z * sinA;
+      const rz = c.x * sinA + c.z * cosA;
+      return {
+        rx,
+        rz,
+        px: 200 + rx,
+        py: 200 - c.y
+      };
+    });
+  }, [cities, angle]);
+
+  // Map routes to end points
+  const routePoints = useMemo(() => {
+    return [
+      [0, 1], [2, 3], [4, 5], [6, 7], [8, 9], [10, 11]
+    ];
+  }, []);
+
+  // Styling colors
+  const landColor = accentColor;
+  const signalColor = accentColor;
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        position: "relative"
+      }}
+    >
+      {/* Ambient glow behind */}
+      <div
+        style={{
+          position: "absolute",
+          width: "350px",
+          height: "350px",
+          borderRadius: "50%",
+          background: `radial-gradient(circle, ${accentColor} 0%, transparent 70%)`,
+          opacity: 0.15,
+          pointerEvents: "none",
+          zIndex: 1
+        }}
+      />
+      
+      <svg
+        viewBox="0 0 400 400"
+        style={{
+          width: "90%",
+          height: "90%",
+          position: "relative",
+          zIndex: 2,
+          overflow: "visible"
+        }}
+      >
+        {/* Globe base sphere */}
+        <circle cx="200" cy="200" r={r} fill="transparent" stroke={landColor} strokeWidth="1" opacity="0.12" />
+
+        {/* Latitudes */}
+        <ellipse cx="200" cy="200" rx={r} ry="35" fill="none" stroke={landColor} strokeWidth="0.8" opacity="0.25" />
+        <ellipse cx="200" cy="200" rx={r} ry="75" fill="none" stroke={landColor} strokeWidth="0.8" opacity="0.25" />
+        <line x1={200 - r} y1="200" x2={200 + r} y2="200" stroke={landColor} strokeWidth="0.8" opacity="0.3" />
+
+        {/* Longitudes (spinning) */}
+        {[0, 30, 60, 90, 120, 150].map((phaseOffset) => {
+          const rad = (angle + phaseOffset * Math.PI / 180) % Math.PI;
+          const rx = r * Math.abs(Math.cos(rad));
+          const isFront = Math.sin(rad) >= 0;
+          return (
+            <ellipse
+              key={phaseOffset}
+              cx="200"
+              cy="200"
+              rx={rx}
+              ry={r}
+              fill="none"
+              stroke={landColor}
+              strokeWidth="0.8"
+              opacity={isFront ? 0.3 : 0.08}
+            />
+          );
+        })}
+
+        {/* Path lines */}
+        {routePoints.map(([startIdx, endIdx], idx) => {
+          const start = rotatedCities[startIdx];
+          const end = rotatedCities[endIdx];
+          const isFront = start.rz > -10 && end.rz > -10;
+          
+          // Draw Bezier arc
+          const ctrlX = (start.px + end.px) / 2 + (start.py - end.py) * 0.15;
+          const ctrlY = (start.py + end.py) / 2 - 30;
+          const pathD = `M ${start.px} ${start.py} Q ${ctrlX} ${ctrlY} ${end.px} ${end.py}`;
+
+          // Calculate packet pos
+          const speed = ROUTE_SPEEDS[idx % ROUTE_SPEEDS.length] * 5.0;
+          const t = (packetProgress * speed + idx * 0.18) % 1.0;
+          const pX = (1 - t) * (1 - t) * start.px + 2 * (1 - t) * t * ctrlX + t * t * end.px;
+          const pY = (1 - t) * (1 - t) * start.py + 2 * (1 - t) * t * ctrlY + t * t * end.py;
+          
+          return (
+            <g key={idx}>
+              <path
+                d={pathD}
+                fill="none"
+                stroke={signalColor}
+                strokeWidth={isFront ? "1.5" : "0.75"}
+                strokeDasharray={isFront ? undefined : "3 3"}
+                opacity={isFront ? 0.45 : 0.15}
+              />
+              {isFront && (
+                <circle cx={pX} cy={pY} r="3.5" fill={signalColor}>
+                  <animate attributeName="r" values="2.5;4.5;2.5" dur="1.5s" repeatCount="indefinite" />
+                </circle>
+              )}
+            </g>
+          );
+        })}
+
+        {/* Hub points */}
+        {rotatedCities.map((c, idx) => {
+          const isFront = c.rz > 0;
+          return (
+            <g key={idx} opacity={isFront ? 1.0 : 0.2}>
+              {/* Outer pulsing ring for front hubs */}
+              {isFront && (
+                <circle cx={c.px} cy={c.py} r="10" fill="none" stroke={signalColor} strokeWidth="1" opacity="0.4">
+                  <animate attributeName="r" values="3;12;3" dur="2s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite" />
+                </circle>
+              )}
+              {/* Core dot */}
+              <circle cx={c.px} cy={c.py} r={isFront ? "4" : "2"} fill={signalColor} />
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
 /* ── Exported Canvas wrapper ────────────────────────────────── */
 export default function GlobeScene({ variant = "pulse" }: { variant?: "pulse" | "laser" | "burst" }) {
+  const [webglSupported, setWebglSupported] = useState(false);
   const [accentColor, setAccentColor] = useState(() => {
     if (typeof window !== "undefined") {
       const rootStyle = window.getComputedStyle(document.documentElement);
@@ -299,15 +491,61 @@ export default function GlobeScene({ variant = "pulse" }: { variant?: "pulse" | 
   });
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const checkThemeColor = () => {
+      const rootStyle = window.getComputedStyle(document.documentElement);
+      const coreColor = rootStyle.getPropertyValue("--theme-accent-rgb").trim();
+      if (coreColor) {
+        setAccentColor(`rgb(${coreColor})`);
+      }
+    };
+
     const handle = (e: Event) => {
       const customEvent = e as CustomEvent<string>;
       if (customEvent.detail) {
         setAccentColor(customEvent.detail);
       }
     };
+
     window.addEventListener("themeColorChange", handle);
-    return () => window.removeEventListener("themeColorChange", handle);
+
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === "attributes" && mutation.attributeName === "data-theme-color") {
+          checkThemeColor();
+        }
+      }
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme-color"]
+    });
+
+    const supportsWebGL = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        const gl = (canvas.getContext("webgl") || canvas.getContext("experimental-webgl")) as WebGLRenderingContext | null;
+        if (!gl) return false;
+        const loseContext = gl.getExtension("WEBGL_lose_context");
+        if (loseContext) loseContext.loseContext();
+        return true;
+      } catch (e) {
+        return false;
+      }
+    };
+    setWebglSupported(supportsWebGL());
+
+    return () => {
+      window.removeEventListener("themeColorChange", handle);
+      observer.disconnect();
+    };
   }, []);
+
+  if (!webglSupported) {
+    return <FallbackGlobe variant={variant} accentColor={accentColor} />;
+  }
 
   return (
     <Canvas

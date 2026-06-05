@@ -9,4 +9,3 @@ Production-ready Next.js website for YNot Solutions.
 - `npm run start` - production server
 - `npm run lint` - ESLint
 - `npm run typecheck` - TypeScript check
-- `npm run test:e2e` - Playwright smoke tests

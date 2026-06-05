@@ -20,12 +20,33 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var saved = localStorage.getItem("theme-color");
+                  var valid = ["vibrant", "sand", "pastel", "black", "white", "cyan", "blue", "green"];
+                  if (saved && valid.indexOf(saved) !== -1) {
+                    document.documentElement.setAttribute("data-theme-color", saved);
+                  } else {
+                    document.documentElement.setAttribute("data-theme-color", "white");
+                  }
+                } catch (e) {}
+              })();
+            `
+          }}
+        />
+      </head>
       <body>
         <Header />
         {children}
         <Footer />
+
       </body>
     </html>
   );
 }
+

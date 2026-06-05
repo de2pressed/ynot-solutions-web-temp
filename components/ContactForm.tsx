@@ -87,12 +87,12 @@ export function ContactForm() {
   return (
     <form className="contact-form" onSubmit={submit} noValidate>
       <div className="field-grid">
-        <label>Name<input name="name" required /></label>
-        <label>Work email<input name="email" type="email" required /></label>
+        <label>Name<input name="name" required placeholder="Tell us your name." /></label>
+        <label>Work email<input name="email" type="email" required placeholder="Tell us your work email." /></label>
       </div>
       <div className="field-grid">
-        <label>Company<input name="company" /></label>
-        <label>Phone number<input name="phone" type="tel" /></label>
+        <label>Company<input name="company" placeholder="Tell us your company." /></label>
+        <label>Phone number<input name="phone" type="tel" placeholder="Tell us your phone number." /></label>
       </div>
       <div className="field-grid">
         <label>

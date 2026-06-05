@@ -16,8 +16,7 @@ button, input, textarea, select { font: inherit; }
 .section-copy.narrow { max-width: 760px; }
 .eyebrow { font-family: var(--font-mono); font-size: .76rem; letter-spacing: .18em; text-transform: uppercase; margin: 0 0 18px; opacity: .72; }
 /* Dark theme accent overrides — use dynamic accent variable instead of static yellow */
-.theme-dark .nav a:hover, .theme-dark .header-cta:hover { color: rgb(var(--theme-accent-rgb)); }
-.theme-dark .header-cta { color: rgb(var(--theme-accent-rgb)); border-color: rgba(var(--theme-accent-rgb),.75); }
+.theme-dark .nav a:hover { color: rgb(var(--theme-accent-rgb)); }
 .theme-dark .theme-dropdown-toggle { color: rgb(var(--theme-accent-rgb)); border-color: rgba(var(--theme-accent-rgb), 0.75); }
 .theme-dark .site-header { border-bottom-color: rgba(var(--theme-accent-rgb),.24); }
 h1,h2,h3,p { margin-top: 0; }
